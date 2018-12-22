@@ -1,7 +1,21 @@
 <?php
-    require 'functions.php';
-    $mahasiswa = query("SELECT * FROM mahasiswa ORDER BY NIM ASC");
+    session_start();
 
+    if( !isset($_SESSION["login"])) {
+        header("Location: login.php");
+    }
+    require 'functions.php';
+
+    //pagination
+    $jumlahDataPerHalaman = 5;
+    $jumlahData = count(query("SELECT * FROM mahasiswa"));
+    $jumlahHalaman = ceil($jumlahData / $jumlahDataPerHalaman);
+    $halamanAktif = ( isset($_GET["p"]) ) ? $_GET["p"] : 1; 
+    $awalData = ( $jumlahDataPerHalaman * $halamanAktif) - $jumlahDataPerHalaman;
+
+    $mahasiswa = query("SELECT * FROM mahasiswa ORDER BY NIM ASC LIMIT $awalData, $jumlahDataPerHalaman");
+
+    
     //tombol cari diklik
     if( isset($_POST["cari"])) {
         $mahasiswa = cari($_POST["keyword"]);
@@ -55,6 +69,15 @@
         table > caption {
             color: black;
         }
+
+        #tableRow {
+            height: 50px;
+        }
+
+        .table > tbody > tr > td {
+            vertical-align: middle;
+        }
+        
     </style>
 </head>
 
@@ -89,7 +112,7 @@
                             <button class="btn btn-success my-2 my-sm-0" type="submit" name="cari">Cari</button>
                         </form>
                     </ul>
-                    <a href="index.php">
+                    <a href="logout.php">
                         <button id="adminBtn" class="btn btn-danger" type="button">Logout!</button>
                     </a>
                 </div>
@@ -117,7 +140,7 @@
                 </tr>
                 <?php $no = 1; ?>
                 <?php foreach ($mahasiswa as $row) : ?>
-                <tr>
+                <tr id="tableRow">
                     <td>
                         <?= $no; ?>
                     </td>
@@ -166,13 +189,32 @@
                         <?= $row["jurusan"]; ?>
                     </td>
                     <td>
-                        <?= $row["gambar"]; ?>
+                        <img src="images/<?= $row["gambar"]; ?>" alt="" width="50">
                     </td>
                 </tr>
                 <?php $no++; ?>
                 <?php endforeach;?>
                 <caption>Tabel Mahasiswa Probistek</caption>
+
             </table>
+
+            <!-- navigasi -->
+            <?php if( $halamanAktif > 1) : ?>
+                <a href="?p=<?= $halamanAktif - 1; ?>">&larr;</a>
+            <?php endif; ?>
+                
+            <?php for( $i = 1; $i <= $jumlahHalaman; $i++) : ?>
+                <?php if( $i == $halamanAktif) : ?>
+                    <a href="?p=<?= $i; ?>" style="font-weight: bold; color: red;"><?= $i; ?></a>
+                <?php else : ?>
+                    <a href="?p=<?= $i; ?>"><?= $i; ?></a>
+                <?php endif; ?>
+            <?php endfor; ?>
+
+            <?php if( $halamanAktif < $jumlahHalaman ) : ?>
+                <a href="?p=<?= $halamanAktif + 1; ?>">&rarr;</a>
+            <?php endif; ?>
+            
             <a href="adminMhs/tambah.php">
                 <button id="tambahMhs" class="btn btn-success" type="button">Tambah Data</button>
             </a>
