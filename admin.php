@@ -12,6 +12,9 @@
     $jumlahHalaman = ceil($jumlahData / $jumlahDataPerHalaman);
     $halamanAktif = ( isset($_GET["p"]) ) ? $_GET["p"] : 1; 
     $awalData = ( $jumlahDataPerHalaman * $halamanAktif) - $jumlahDataPerHalaman;
+    $hasilHalamanPertama = ($halamanAktif-1)*$jumlahDataPerHalaman;
+    $noAwal = 0;
+    $no = ($hasilHalamanPertama + 1) - 1;
 
     $mahasiswa = query("SELECT * FROM mahasiswa ORDER BY NIM ASC LIMIT $awalData, $jumlahDataPerHalaman");
 
@@ -138,8 +141,8 @@
                     <th>Jurusan</th>
                     <th>Gambar</th>
                 </tr>
-                <?php $no = 1; ?>
-                <?php foreach ($mahasiswa as $row) : ?>
+                
+                <?php foreach ($mahasiswa as $row): $no++; ?>
                 <tr id="tableRow">
                     <td>
                         <?= $no; ?>
@@ -192,7 +195,6 @@
                         <img src="images/<?= $row["gambar"]; ?>" alt="" width="50">
                     </td>
                 </tr>
-                <?php $no++; ?>
                 <?php endforeach;?>
                 <caption>Tabel Mahasiswa Probistek</caption>
 
@@ -214,12 +216,14 @@
             <?php if( $halamanAktif < $jumlahHalaman ) : ?>
                 <a href="?p=<?= $halamanAktif + 1; ?>">&rarr;</a>
             <?php endif; ?>
-            
+
+            <br>
+
             <a href="adminMhs/tambah.php">
                 <button id="tambahMhs" class="btn btn-success" type="button">Tambah Data</button>
             </a>
-
-            <br><br>
+            
+            <br><br><br><br>
 
         </center>
     </div>
